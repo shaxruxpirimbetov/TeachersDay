@@ -1,4 +1,8 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тетрадь благодарности</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +21,7 @@
     --line: #B9C7E4;
     --sticker: #F5D04E;
     --on-sticker: #2A2200;
+    color-scheme: light;
     --font-hand: 'Marck Script', 'Segoe Script', 'Comic Sans MS', cursive;
     --font-body: 'PT Serif', Georgia, 'Times New Roman', serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
@@ -35,6 +40,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     background-color: var(--paper);
     background-image:
@@ -250,8 +256,45 @@
   .grade:hover { background: var(--grid); }
   .grade[aria-pressed="true"]:hover { background: var(--red); }
   .reply { font-family: var(--font-hand); font-size: 1.55rem; line-height: 1.3; color: var(--red); margin-top: 16px; min-height: 3.9em; }
-  .sign { display: flex; align-items: flex-end; gap: 12px; margin-top: 6px; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-  .sign i { flex: 1; min-width: 0; border-bottom: 1px solid var(--line); height: 1.6em; }
+  .sign-form { margin-top: 10px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .sign-title { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 18px; margin-top: 10px; }
+  .field { display: block; min-width: 0; }
+  .field span { display: block; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .field input {
+    display: block; width: 100%; min-width: 0;
+    background: transparent; color: var(--pen);
+    border: 0; border-bottom: 2px solid var(--pen); border-radius: 0;
+    padding: 4px 2px 2px;
+    font-family: var(--font-hand); font-size: 1.6rem; line-height: 1.3;
+  }
+  .field input:disabled { opacity: .7; }
+  .send {
+    margin-top: 18px;
+    background: var(--sticker); color: var(--on-sticker);
+    border: 2px solid var(--on-sticker); border-radius: 999px;
+    padding: 8px 22px;
+    font-family: var(--font-hand); font-size: 1.4rem; line-height: 1.2;
+    cursor: pointer;
+  }
+  .send:disabled { opacity: .55; cursor: default; }
+  .form-msg { font-family: var(--font-hand); font-size: 1.35rem; line-height: 1.3; color: var(--red); margin-top: 12px; min-height: 1.4em; }
+
+  /* Результаты (страница с #results) */
+  body.view-results .sheet > header,
+  body.view-results .sheet > section:not(#results),
+  body.view-results .sheet > .final { display: none; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; min-width: 96px; }
+  .stat b { display: block; font-family: var(--font-hand); font-weight: 400; font-size: 2rem; line-height: 1.1; color: var(--red); }
+  .stat span { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .table-wrap { margin-top: 18px; overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 1rem; }
+  th { text-align: left; font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  th, td { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.g { font-family: var(--font-hand); font-size: 1.6rem; line-height: 1; color: var(--red); }
+  td.empty { color: var(--muted); font-style: italic; }
 
   /* Подпись */
   .final { display: flex; flex-wrap: wrap; align-items: center; gap: 24px 36px; padding-block: 56px 8px; }
@@ -284,6 +327,8 @@
     .bell-btn.ring svg { animation: none; }
   }
 </style>
+</head>
+<body>
 
 <main class="sheet">
   <header>
@@ -397,8 +442,29 @@
         <button class="grade" type="button" data-g="5" aria-pressed="false">5</button>
       </div>
       <p class="reply" id="reply" aria-live="polite">Оценка ещё не выставлена. Мы волнуемся. Подсказка: пятёрка самая красивая цифра.</p>
-      <div class="sign">Подпись преподавателя <i></i></div>
+      <form class="sign-form" id="signForm" novalidate>
+        <div class="sign-title">Подпись преподавателя</div>
+        <div class="fields">
+          <label class="field" for="firstName"><span>Имя</span><input id="firstName" name="first_name" type="text" autocomplete="given-name" maxlength="40" required></label>
+          <label class="field" for="lastName"><span>Фамилия</span><input id="lastName" name="last_name" type="text" autocomplete="family-name" maxlength="40" required></label>
+        </div>
+        <button class="send" id="send" type="submit">Поставить оценку</button>
+        <p class="form-msg" id="formMsg" role="status" aria-live="polite"></p>
+      </form>
     </div>
+  </section>
+
+  <section id="results" hidden>
+    <div class="eyebrow">Только для нас</div>
+    <h2>Кто сколько поставил</h2>
+    <div class="stats" id="stats"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>№</th><th>Имя</th><th>Фамилия</th><th>Оценка</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <button class="send" id="refresh" type="button">Обновить</button>
   </section>
 
   <footer class="final">
@@ -470,16 +536,115 @@
     '4': 'Четвёрка нас радует. До идеала осталась одна цифра, и мы её достанем.',
     '5': 'Пятёрка! Мы так и знали, что вы самые справедливые преподаватели.'
   };
+  /* Бэкенд: если страница отдаётся самим Flask, адрес относительный.
+     Если файл открыт напрямую с диска, идём на 127.0.0.1:5000 (CORS на сервере включён). */
+  var API = (location.protocol === 'http:' || location.protocol === 'https:') ? '' : 'http://127.0.0.1:5000';
+
   var grades = document.querySelectorAll('.grade');
   var reply = document.getElementById('reply');
+  var selected = null;
   grades.forEach(function (btn) {
     btn.addEventListener('click', function () {
       grades.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
-      var g = btn.getAttribute('data-g');
-      reply.textContent = replies[g];
-      if (g === '5') burst();
+      selected = btn.getAttribute('data-g');
+      reply.textContent = replies[selected];
+      if (selected === '5') burst();
     });
   });
+
+  var form = document.getElementById('signForm');
+  var firstName = document.getElementById('firstName');
+  var lastName = document.getElementById('lastName');
+  var sendBtn = document.getElementById('send');
+  var formMsg = document.getElementById('formMsg');
+  function say(t) { formMsg.textContent = t; }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fn = firstName.value.trim();
+    var ln = lastName.value.trim();
+    if (!selected) { say('Сначала выберите оценку выше.'); return; }
+    if (!fn || !ln) { say('Впишите имя и фамилию, чтобы мы знали, кого благодарить.'); return; }
+    sendBtn.disabled = true;
+    say('Отправляем...');
+    fetch(API + '/data/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: fn, last_name: ln, grade: parseInt(selected, 10) })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function () {
+      say('Спасибо, ' + fn + '! Оценка принята.');
+      firstName.disabled = true; lastName.disabled = true;
+      grades.forEach(function (b) { b.disabled = true; });
+    }).catch(function () {
+      sendBtn.disabled = false;
+      say('Не получилось отправить. Проверьте, что сервер запущен, и попробуйте ещё раз.');
+    });
+  });
+
+  /* Результаты: откройте адрес страницы с #results в конце */
+  var resultsSec = document.getElementById('results');
+  var rowsEl = document.getElementById('rows');
+  var statsEl = document.getElementById('stats');
+  function cell(tag, text, cls) {
+    var c = document.createElement(tag);
+    c.textContent = (text === null || text === undefined) ? '' : String(text);
+    if (cls) c.className = cls;
+    return c;
+  }
+  function renderResults(list) {
+    rowsEl.innerHTML = '';
+    statsEl.innerHTML = '';
+    var sum = 0, n = 0, dist = { 5: 0, 4: 0, 3: 0, 2: 0 };
+    list.forEach(function (d) {
+      var g = Number(d.grade);
+      if (!isNaN(g)) { sum += g; n++; if (dist[g] !== undefined) dist[g]++; }
+      var tr = document.createElement('tr');
+      tr.appendChild(cell('td', d.id));
+      tr.appendChild(cell('td', d.first_name));
+      tr.appendChild(cell('td', d.last_name));
+      tr.appendChild(cell('td', d.grade, 'g'));
+      rowsEl.appendChild(tr);
+    });
+    if (!list.length) {
+      var tr0 = document.createElement('tr');
+      var td0 = cell('td', 'Пока никто не поставил оценку.', 'empty');
+      td0.colSpan = 4;
+      tr0.appendChild(td0);
+      rowsEl.appendChild(tr0);
+    }
+    var avg = n ? (sum / n).toFixed(2) : '-';
+    [['Всего', list.length], ['Средняя', avg], ['Пятёрок', dist[5]], ['Четвёрок', dist[4]], ['Троек', dist[3]], ['Двоек', dist[2]]].forEach(function (p) {
+      var s = document.createElement('div');
+      s.className = 'stat';
+      s.appendChild(cell('b', p[1]));
+      s.appendChild(cell('span', p[0]));
+      statsEl.appendChild(s);
+    });
+  }
+  function loadResults() {
+    fetch(API + '/data/').then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(renderResults).catch(function () {
+      rowsEl.innerHTML = '';
+      var tr = document.createElement('tr');
+      var td = cell('td', 'Не удалось загрузить данные. Сервер запущен?', 'empty');
+      td.colSpan = 4;
+      tr.appendChild(td);
+      rowsEl.appendChild(tr);
+    });
+  }
+  function showView() {
+    var on = location.hash === '#results';
+    document.body.classList.toggle('view-results', on);
+    resultsSec.hidden = !on;
+    if (on) loadResults();
+  }
+  document.getElementById('refresh').addEventListener('click', loadResults);
+  window.addEventListener('hashchange', showView);
+  showView();
 
   /* Конфетти */
   var canvas = document.getElementById('confetti');
@@ -521,5 +686,5 @@
   }
 })();
 </script>
-
-</body></html>
+</body>
+</html>
