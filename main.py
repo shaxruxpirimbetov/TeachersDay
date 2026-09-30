@@ -1,22 +1,44 @@
+import requests
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+
+BOT_TOKEN = "8495367046:AAHYftXNwyZJ9onr5uG8L0yyU4KRkzFM5WE"
+CHAT_ID = 8287944126
 
 app = Flask(__name__)
 CORS(app)
 ids = 1
-data = []
+data = []  # запасная копия оценок, видна по GET /data/ и на странице /#results
+
+
+def send_to_telegram(text):
+	try:
+		r = requests.post(
+			f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+			json={"chat_id": CHAT_ID, "text": text},
+			timeout=10,
+		)
+	except requests.RequestException as e:
+		app.logger.error("Telegram request failed: %s", e)
+		return False
+	if not r.ok:
+		app.logger.error("Telegram error %s: %s", r.status_code, r.text)
+	return r.ok
+
 
 @app.route("/")
 def index_view():
 	return render_template("index.html")
 
+
 @app.route("/data/", methods=["GET", "POST"])
 def data_route():
 	global ids
 	if request.method == "POST":
-		first_name = request.json.get("first_name")
-		last_name = request.json.get("last_name")
-		grade = request.json.get("grade")
+		payload = request.get_json(silent=True) or {}
+		first_name = payload.get("first_name")
+		last_name = payload.get("last_name")
+		grade = payload.get("grade")
 		
 		data.append({
 			"id": ids,
@@ -25,8 +47,29 @@ def data_route():
 			"grade": grade
 		})
 		ids += 1
+
+		if not isinstance(first_name, str) or not first_name.strip():
+			return jsonify({"ok": False, "error": "first_name required"}), 400
+		if not isinstance(last_name, str) or not last_name.strip():
+			return jsonify({"ok": False, "error": "last_name required"}), 400
+		if grade not in (2, 3, 4, 5):
+			return jsonify({"ok": False, "error": "grade must be 2..5"}), 400
+
+		first_name = first_name.strip()[:40]
+		last_name = last_name.strip()[:40]
+
+		message = (
+			"Новая оценка от преподавателя NMTU\n\n"
+			f"Имя: {first_name}\n"
+			f"Фамилия: {last_name}\n"
+			f"Оценка: {grade}"
+		)
+		if not send_to_telegram(message):
+			return jsonify({"ok": False, "error": "telegram failed"}), 502
+
 		return jsonify({"ok": True}), 201
 	return jsonify(data), 200
+
 
 if __name__ == "__main__":
 	app.run()
